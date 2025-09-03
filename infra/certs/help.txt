@@ -1,0 +1,56 @@
+openssl req -new \
+    -newkey rsa:2048 \
+    -keyout clusterA/clusterA.key \
+    -out clusterA/clusterA.csr \
+    -config clusterA/clusterA.cnf \
+    -nodes
+	
+openssl req -new \
+    -newkey rsa:2048 \
+    -keyout clusterB/clusterB.key \
+    -out clusterB/clusterB.csr \
+    -config clusterB/clusterB.cnf \
+    -nodes 
+	
+	
+------------
+
+openssl x509 -req \
+    -days 3650 \
+    -in clusterA/clusterA.csr \
+    -CA CA/ca.crt \
+    -CAkey CA/ca.key \
+    -CAcreateserial \
+    -out clusterA/clusterA.crt \
+    -extfile clusterA/clusterA.cnf \
+    -extensions v3_req
+	
+openssl x509 -req \
+    -days 3650 \
+    -in clusterB/clusterB.csr \
+    -CA CA/ca.crt \
+    -CAkey CA/ca.key \
+    -CAcreateserial \
+    -out clusterB/clusterB.crt \
+    -extfile clusterB/clusterB.cnf \
+    -extensions v3_req
+	
+-------------------
+
+openssl pkcs12 -export \
+    -in clusterA/clusterA.crt \
+    -inkey clusterA/clusterA.key \
+    -chain \
+    -CAfile CA/ca.pem \
+    -name clusterA \
+    -out clusterA/clusterA.p12 \
+    -password pass:changeit
+	
+openssl pkcs12 -export \
+    -in clusterB/clusterB.crt \
+    -inkey clusterB/clusterB.key \
+    -chain \
+    -CAfile CA/ca.pem \
+    -name clusterB \
+    -out clusterB/clusterB.p12 \
+    -password pass:changeit

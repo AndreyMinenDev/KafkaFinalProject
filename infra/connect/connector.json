@@ -1,0 +1,19 @@
+{
+  "name": "filtered-products-file-sink",
+  "config": {
+    "connector.class": "org.apache.kafka.connect.file.FileStreamSinkConnector",
+    "tasks.max": "1",
+    "topics": "shop.products.filtered",
+    "file": "/data/filtered-products.log",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false",
+	
+	"consumer.override.security.protocol": "SASL_SSL",
+    "consumer.override.sasl.mechanism": "PLAIN",
+    "consumer.override.sasl.jaas.config": "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"connect\" password=\"changeit\";",
+    "consumer.override.ssl.truststore.location": "/etc/kafka/secrets/truststore.jks",
+    "consumer.override.ssl.truststore.password": "changeit",
+    "consumer.override.ssl.endpoint.identification.algorithm": ""
+  }
+}

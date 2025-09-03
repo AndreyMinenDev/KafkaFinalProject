@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: saver-pg
+  kafka:
+    consumer:
+      ssl:
+        trust-store-location: file:${TRUSTSTORE_LOCATION:certs/truststore.jks}
+        trust-store-password: changeit
+      group-id: ${GROUP_ID:saver-pg}
+      bootstrap-servers: ${BOOTSTRAP_SERVERS:localhost:9094,localhost:9095,localhost:9096}
+      properties:
+        security.protocol: SASL_SSL
+        sasl.mechanism: PLAIN
+        sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="client" password="changeit";
+      auto-offset-reset: earliest
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${POSTGRE_URL:jdbc:postgresql://localhost:5432/shopdb}
+    username: ${POSTGRE_USERNAME:postgres}
+    password: ${POSTGRE_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: ${PORT:9093}
+
+topics:
+  filtered: ${TOPIC_FILTERED:shop.products.filtered}
+

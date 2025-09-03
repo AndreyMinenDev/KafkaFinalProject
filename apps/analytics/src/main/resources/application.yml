@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: analytics
+  kafka:
+    ssl:
+      trust-store-location: file:${TRUSTSTORE_LOCATION:certs/truststore.jks}
+      trust-store-password: changeit
+    consumer:
+      group-id: ${GROUP_ID:analytics}
+      bootstrap-servers: ${BOOTSTRAP_SERVERS_CLUSTER_B:localhost:9097,localhost:9098,localhost:9099}
+      auto-offset-reset: earliest
+    producer:
+      bootstrap-servers: ${BOOTSTRAP_SERVERS_CLUSTER_B:localhost:9097,localhost:9098,localhost:9099}
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    properties:
+      security.protocol: SASL_SSL
+      sasl.mechanism: PLAIN
+      sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="reco" password="changeit";
+
+server:
+  port: 9089
+
+app:
+  hdfs:
+    uri: "hdfs://hadoop-namenode:9000"
+
+topics:
+  productsFiltered: A.shop.products.filtered
+  requests: A.client.requests
+  recommendations: client.recommendations

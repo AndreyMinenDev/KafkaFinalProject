@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: streams-filter-app
+  kafka:
+    streams:
+      ssl:
+        trust-store-location: file:${TRUSTSTORE_LOCATION:certs/truststore.jks}
+        trust-store-password: changeit
+      application-id: filtered-products
+      state-dir: kafka-streams
+      properties:
+        security.protocol: SASL_SSL
+        sasl.mechanism: PLAIN
+        sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="streams" password="changeit";
+    bootstrap-servers: ${BOOTSTRAP_SERVERS:localhost:9094,localhost:9095,localhost:9096}
+
+
+server:
+  port: ${PORT:9092}
+
+topics:
+  products: ${TOPIC_PRODUCTS:shop.products}
+  forbidden: ${TOPIC_FORBIDDEN:forbidden.skus}
+  filtered: ${TOPIC_FILTERED:shop.products.filtered}

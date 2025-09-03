@@ -1,0 +1,74 @@
+services:
+  analytics_app:
+   build:
+     dockerfile: ./analytics/Dockerfile
+   container_name: analytics_app
+   volumes:
+     - ./analytics/certs:/etc/certs
+   environment:
+     - BOOTSTRAP_SERVERS_CLUSTER_B=kafka-b-1:9093,kafka-b-2:9093,kafka-b-3:9093
+     - TRUSTSTORE_LOCATION=/etc/certs/truststore.jks
+   networks:
+     - kafka_net
+
+  emitter_app:
+    build:
+      dockerfile: ./emitter/Dockerfile
+    container_name: emitter_app
+    volumes:
+      - ./emitter/products:/etc/products
+      - ./emitter/certs:/etc/certs
+    environment:
+      - BOOTSTRAP_SERVERS=kafka-a-1:9093,kafka-a-2:9093,kafka-a-3:9093
+      - PRODUCTS_PATH=/etc/products
+      - PRODUCE_DATA_SCHEDULE_MS=30000
+      - TRUSTSTORE_LOCATION=/etc/certs/truststore.jks
+    networks:
+      - kafka_net
+
+  saver_pg_app:
+    build:
+      dockerfile: ./saver-pg/Dockerfile
+    container_name: saver_pg_app
+    volumes:
+      - ./saver-pg/certs:/etc/certs
+    environment:
+      - BOOTSTRAP_SERVERS=kafka-a-1:9093,kafka-a-2:9093,kafka-a-3:9093
+      - POSTGRE_URL=jdbc:postgresql://postgres:5432/shopdb
+      - TRUSTSTORE_LOCATION=/etc/certs/truststore.jks
+    networks:
+      - kafka_net
+
+  stream_filter_app:
+    build:
+      dockerfile: ./stream-filter/Dockerfile
+    container_name: stream_filter_app
+    volumes:
+      - ./stream-filter/certs:/etc/certs
+    environment:
+      - BOOTSTRAP_SERVERS=kafka-a-1:9093,kafka-a-2:9093,kafka-a-3:9093
+      - TRUSTSTORE_LOCATION=/etc/certs/truststore.jks
+    networks:
+      - kafka_net
+
+  client-cli:
+    build:
+      dockerfile: ./client-shell/Dockerfile
+    container_name: client-cli
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./client-shell/certs:/etc/certs
+    environment:
+      - BOOTSTRAP_SERVERS=kafka-a-1:9093,kafka-a-2:9093,kafka-a-3:9093
+      - POSTGRE_URL=jdbc:postgresql://postgres:5432/shopdb
+      - BOOTSTRAP_SERVERS_CLUSTER_A=kafka-a-1:9093,kafka-a-2:9093,kafka-a-3:9093
+      - BOOTSTRAP_SERVERS_CLUSTER_B=kafka-b-1:9093,kafka-b-2:9093,kafka-b-3:9093
+      - TRUSTSTORE_LOCATION=/etc/certs/truststore.jks
+    networks:
+      - kafka_net
+
+networks:
+  kafka_net:
+    name: my_net
+    external: true
