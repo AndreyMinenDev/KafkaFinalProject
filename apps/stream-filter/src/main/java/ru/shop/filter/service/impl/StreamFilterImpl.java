@@ -12,6 +12,7 @@ import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Produced;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import ru.shop.filter.dto.ProductDto;
 import ru.shop.filter.service.StreamFilter;
 
 @Service
@@ -40,22 +41,20 @@ public class StreamFilterImpl implements StreamFilter {
     @Override
     public void startFilter() {
         log.info("Start filtered stream");
-        KStream<String, String> products = builder.stream(topicProducts, Consumed.with(Serdes.String(), Serdes.String()));
+        KStream<String, ProductDto> products = builder.stream(topicProducts);
         KTable<String, String> forbidden = builder.table(topicForbidden, Consumed.with(Serdes.String(), Serdes.String()));
 
-        KStream<String, String> skuStream = products.selectKey((k, v) -> {
+        KStream<String, ProductDto> skuStream = products.selectKey((k, v) -> {
             try {
                 if (k != null && !k.isBlank()) return k;
-                JsonNode n = mapper.readTree(v);
-                return n.hasNonNull("sku") ? n.get("sku").asText() : k;
+                return v.getSku();
             } catch (Exception e) { return k; }
         });
 
-        KStream<String, String> passedStream = skuStream.leftJoin(forbidden,
-                (value, forbidVal) -> forbidVal == null ? value : null,
-                org.apache.kafka.streams.kstream.Joined.with(Serdes.String(), Serdes.String(), Serdes.String())
+        KStream<String, ProductDto> passedStream = skuStream.leftJoin(forbidden,
+                (value, forbidVal) -> forbidVal == null ? value : null
         ).filter((k, v) -> v != null);
 
-        passedStream.to(topicFiltered, Produced.with(Serdes.String(), Serdes.String()));
+        passedStream.to(topicFiltered);
     }
 }

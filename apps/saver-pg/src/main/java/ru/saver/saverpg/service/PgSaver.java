@@ -1,7 +1,9 @@
 package ru.saver.saverpg.service;
 
+import ru.saver.saverpg.dto.ProductDto;
+
 public interface PgSaver {
 
-    void saveJson(String json);
+    void save(ProductDto dto);
 
 }

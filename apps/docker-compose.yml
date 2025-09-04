@@ -8,6 +8,7 @@ services:
    environment:
      - BOOTSTRAP_SERVERS_CLUSTER_B=kafka-b-1:9093,kafka-b-2:9093,kafka-b-3:9093
      - TRUSTSTORE_LOCATION=/etc/certs/truststore.jks
+     - SCHEMA_REGISTRY_URL=http://schema-registry:8081
    networks:
      - kafka_net
 
@@ -18,11 +19,14 @@ services:
     volumes:
       - ./emitter/products:/etc/products
       - ./emitter/certs:/etc/certs
+      - ./emitter/schemas:/etc/schemas
     environment:
       - BOOTSTRAP_SERVERS=kafka-a-1:9093,kafka-a-2:9093,kafka-a-3:9093
       - PRODUCTS_PATH=/etc/products
       - PRODUCE_DATA_SCHEDULE_MS=30000
       - TRUSTSTORE_LOCATION=/etc/certs/truststore.jks
+      - SCHEMA_REGISTRY_URL=http://schema-registry:8081
+      - SCHEMA_PATH=/etc/schemas/product_schema.json
     networks:
       - kafka_net
 
@@ -36,6 +40,7 @@ services:
       - BOOTSTRAP_SERVERS=kafka-a-1:9093,kafka-a-2:9093,kafka-a-3:9093
       - POSTGRE_URL=jdbc:postgresql://postgres:5432/shopdb
       - TRUSTSTORE_LOCATION=/etc/certs/truststore.jks
+      - SCHEMA_REGISTRY_URL=http://schema-registry:8081
     networks:
       - kafka_net
 
@@ -48,6 +53,7 @@ services:
     environment:
       - BOOTSTRAP_SERVERS=kafka-a-1:9093,kafka-a-2:9093,kafka-a-3:9093
       - TRUSTSTORE_LOCATION=/etc/certs/truststore.jks
+      - SCHEMA_REGISTRY_URL=http://schema-registry:8081
     networks:
       - kafka_net
 
@@ -65,6 +71,7 @@ services:
       - BOOTSTRAP_SERVERS_CLUSTER_A=kafka-a-1:9093,kafka-a-2:9093,kafka-a-3:9093
       - BOOTSTRAP_SERVERS_CLUSTER_B=kafka-b-1:9093,kafka-b-2:9093,kafka-b-3:9093
       - TRUSTSTORE_LOCATION=/etc/certs/truststore.jks
+      - SCHEMA_REGISTRY_URL=http://schema-registry:8081
     networks:
       - kafka_net
 

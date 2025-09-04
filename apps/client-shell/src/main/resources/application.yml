@@ -33,6 +33,7 @@ app:
     jaas-config: org.apache.kafka.common.security.plain.PlainLoginModule required username="client" password="changeit";
     truststore-location: ${TRUSTSTORE_LOCATION:certs/truststore.jks}
     truststore-password: ${TRUSTSTORE_PASSWORD:changeit}
+  schema_registry: ${SCHEMA_REGISTRY_URL:http://localhost:8081}
 
 topics:
   requests: "client.requests"

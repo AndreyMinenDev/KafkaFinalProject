@@ -2,17 +2,31 @@ spring:
   application:
     name: saver-pg
   kafka:
+    listener:
+      ack-mode: manual
+    ssl:
+      trust-store-location: file:${TRUSTSTORE_LOCATION:certs/truststore.jks}
+      trust-store-password: changeit
     consumer:
-      ssl:
-        trust-store-location: file:${TRUSTSTORE_LOCATION:certs/truststore.jks}
-        trust-store-password: changeit
       group-id: ${GROUP_ID:saver-pg}
-      bootstrap-servers: ${BOOTSTRAP_SERVERS:localhost:9094,localhost:9095,localhost:9096}
       properties:
         security.protocol: SASL_SSL
         sasl.mechanism: PLAIN
         sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="client" password="changeit";
+        json.value.type: ru.saver.saverpg.dto.ProductDto
       auto-offset-reset: earliest
+      enable-auto-commit: false
+      value-deserializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaSerializer
+      acks: all
+      retries: 5
+    properties:
+      schema.registry.url: ${SCHEMA_REGISTRY_URL:http://localhost:8081}
+      auto.register.schemas: true
+    bootstrap-servers: ${BOOTSTRAP_SERVERS:localhost:9094,localhost:9095,localhost:9096}
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: ${POSTGRE_URL:jdbc:postgresql://localhost:5432/shopdb}
@@ -30,4 +44,5 @@ server:
 
 topics:
   filtered: ${TOPIC_FILTERED:shop.products.filtered}
+  error: ${TOPIC_ERROR:products.error}
 

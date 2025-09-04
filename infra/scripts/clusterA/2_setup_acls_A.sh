@@ -7,11 +7,11 @@ echo "==> [A] Applying ACLs on ${BOOTSTRAP_A} using ${CONF_A}"
 
 kafka-acls --bootstrap-server "$BOOTSTRAP_A" --command-config "$CONF_A" --add   --allow-principal "User:shop" --producer --topic shop.products
 
-kafka-acls --bootstrap-server "$BOOTSTRAP_A" --command-config "$CONF_A" --add   --allow-principal "User:streams" --consumer --group "streams-app"   --topic shop.products --topic forbidden.skus
+kafka-acls --bootstrap-server "$BOOTSTRAP_A" --command-config "$CONF_A" --add   --allow-principal "User:streams" --consumer --group "streams-app" --topic shop.products --topic forbidden.skus
 
-kafka-acls --bootstrap-server "$BOOTSTRAP_A" --command-config "$CONF_A" --add   --allow-principal "User:streams" --producer --topic shop.products.filtered
+kafka-acls --bootstrap-server "$BOOTSTRAP_A" --command-config "$CONF_A" --add   --allow-principal "User:streams" --producer --topic shop.products.filtered --topic products.error
 
-kafka-acls --bootstrap-server "$BOOTSTRAP_A" --command-config "$CONF_A" --add   --allow-principal "User:client" --producer --topic client.requests
+kafka-acls --bootstrap-server "$BOOTSTRAP_A" --command-config "$CONF_A" --add   --allow-principal "User:client" --producer --topic client.requests --topic products.error
 
 kafka-acls --bootstrap-server "$BOOTSTRAP_A" --command-config "$CONF_A" --add   --allow-principal "User:client" --consumer --group "saver-*" --topic shop.products.filtered
 

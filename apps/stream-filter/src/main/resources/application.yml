@@ -12,6 +12,11 @@ spring:
         security.protocol: SASL_SSL
         sasl.mechanism: PLAIN
         sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="streams" password="changeit";
+        default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+        default.value.serde: io.confluent.kafka.streams.serdes.json.KafkaJsonSchemaSerde
+        schema.registry.url: ${SCHEMA_REGISTRY_URL:http://localhost:8081}
+        json.value.type: ru.shop.filter.dto.ProductDto
+        auto.register.schemas: true
     bootstrap-servers: ${BOOTSTRAP_SERVERS:localhost:9094,localhost:9095,localhost:9096}
 
 

@@ -1,10 +1,9 @@
 package ru.shop.analytics.service;
 
+import ru.shop.analytics.dto.ProductDto;
+
 public interface HadoopService {
 
-    void saveProducts(String data);
-    void saveRequests(String data);
-
-    void recommendation();
+    void saveProducts(ProductDto data) throws Exception;
 
 }
