@@ -460,14 +460,17 @@ services:
    hostname: schema-registry
    container_name: schema-registry
    depends_on:
-     - kafka-0
-     - kafka-1
-     - kafka-2
+     - kafka-a-1
+     - kafka-a-2
+     - kafka-a-3
+     - kafka-b-1
+     - kafka-b-2
+     - kafka-b-3
    ports:
      - "8081:8081"
    environment:
      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-     SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'kafka-a-1:9093,kafka-a-2:9093,kafka-a-3:9093'
+     SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'kafka-a-1:9092,kafka-a-2:9092,kafka-a-3:9092'
      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
    networks:
      - kafka_net

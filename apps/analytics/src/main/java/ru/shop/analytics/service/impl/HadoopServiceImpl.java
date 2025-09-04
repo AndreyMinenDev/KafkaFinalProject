@@ -4,13 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
-import org.apache.spark.SparkConf;
-import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.sql.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import ru.shop.analytics.dto.ProductDto;
 import ru.shop.analytics.service.HadoopService;
 
 import java.io.BufferedReader;
@@ -25,41 +23,36 @@ import java.util.*;
 @Slf4j
 public class HadoopServiceImpl implements HadoopService {
 
-    private final KafkaTemplate<String, String> produce;
+    private final KafkaTemplate<String, ProductDto> produce;
     private final Configuration configuration;
     private final String hdfsUrl;
     private final String topicRecommendation;
 
+    private final ObjectMapper mapper;
+
+    private final String BASE_PATH = "/data/products/";
+
     public HadoopServiceImpl(
             @Value("${app.hdfs.uri}") String hdfsUrl,
             @Value("${topics.recommendations}") String topicRecommendation,
-            KafkaTemplate<String, String> produce
+            KafkaTemplate<String, ProductDto> produce
     ) {
         this.produce = produce;
         this.hdfsUrl = hdfsUrl;
         this.topicRecommendation = topicRecommendation;
         this.configuration = new Configuration();
         configuration.set("fs.defaultFS", hdfsUrl);
-
+        this.mapper = new ObjectMapper();
     }
 
     @Override
-    public void saveProducts(String data) {
-        final String basePath = "/data/products/";
+    public void saveProducts(ProductDto data) throws Exception {
         log.info("Save products");
-        hdfsSave(data, basePath);
-    }
-
-    @Override
-    public void saveRequests(String data) {
-        final String basePath = "/data/requests/";
-        log.info("Save Requests");
-        hdfsSave(data, basePath);
+        hdfsSave(mapper.writeValueAsString(data));
     }
 
     // Каждые 30 секунд: читаем HDFS, строим простые рекомендации и публикуем в Kafka B
     @Scheduled(fixedDelay = 30000, initialDelay = 15000)
-    @Override
     public void recommendation() {
         try {
             log.info("Start analytics...");
@@ -68,7 +61,7 @@ public class HadoopServiceImpl implements HadoopService {
             FileSystem hdfs = FileSystem.get(new URI(hdfsUrl), conf, "root");
 
             // берём случайный файл
-            RemoteIterator<LocatedFileStatus> files = hdfs.listFiles(new Path("/data/products"), true);
+            RemoteIterator<LocatedFileStatus> files = hdfs.listFiles(new Path(BASE_PATH), true);
             List<Path> all = new ArrayList<>();
             while (files.hasNext()) {
                 all.add(files.next().getPath());
@@ -87,17 +80,17 @@ public class HadoopServiceImpl implements HadoopService {
             }
             String productJson = sb.toString();
 
-            produce.send(topicRecommendation, productJson);
+            produce.send(topicRecommendation, mapper.readValue(productJson, ProductDto.class));
             log.info("Sent to kafka analytics success!");
         } catch (Exception ex) {
             log.error("Error Recommendation:", ex);
         }
     }
 
-    private void hdfsSave(String data, String basePath) {
+    private void hdfsSave(String data) {
         try(FileSystem hdfs = FileSystem.get(new URI(hdfsUrl), configuration, "root")) {
             String date = DateTimeFormatter.ofPattern("yyyy/MM/dd").withZone(ZoneOffset.UTC).format(Instant.now());
-            String file = basePath + date + "/part-" + UUID.randomUUID() + ".json";
+            String file = BASE_PATH + date + "/part-" + UUID.randomUUID() + ".json";
             Path path = new Path(file);
             hdfs.mkdirs(path.getParent());
             try (FSDataOutputStream out = hdfs.create(path, true)) {

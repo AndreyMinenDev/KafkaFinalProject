@@ -2,6 +2,8 @@ spring:
   application:
     name: analytics
   kafka:
+    listener:
+      ack-mode: manual
     ssl:
       trust-store-location: file:${TRUSTSTORE_LOCATION:certs/truststore.jks}
       trust-store-password: changeit
@@ -10,16 +12,21 @@ spring:
       bootstrap-servers: ${BOOTSTRAP_SERVERS_CLUSTER_B:localhost:9097,localhost:9098,localhost:9099}
       auto-offset-reset: earliest
       enable-auto-commit: false
+      value-deserializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaDeserializer
+      properties:
+        json.value.type: ru.shop.analytics.dto.ProductDto
     producer:
       bootstrap-servers: ${BOOTSTRAP_SERVERS_CLUSTER_B:localhost:9097,localhost:9098,localhost:9099}
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaSerializer
       acks: all
       retries: 5
     properties:
       security.protocol: SASL_SSL
       sasl.mechanism: PLAIN
       sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="reco" password="changeit";
+      schema.registry.url: ${SCHEMA_REGISTRY_URL:http://localhost:8081}
+      auto.register.schemas: true
 
 server:
   port: 9089
