@@ -30,6 +30,8 @@ public class KafkaConfig {
                 "security.protocol","SASL_SSL",
                 "sasl.mechanism","PLAIN",
                 "sasl.jaas.config", jaas,
+                ProducerConfig.ACKS_CONFIG, "all",
+                ProducerConfig.RETRIES_CONFIG, "5",
                 SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, truststoreLocation,
                 SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, truststorePassword
         );
@@ -51,7 +53,8 @@ public class KafkaConfig {
                 SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, truststoreLocation,
                 SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, truststorePassword,
                 ConsumerConfig.GROUP_ID_CONFIG, "client-cli-reco",
-                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest"
+                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest",
+                ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false"
         );
         DefaultKafkaConsumerFactory<String, String> cf = new DefaultKafkaConsumerFactory(props, new StringDeserializer(), new StringDeserializer());
         ConcurrentKafkaListenerContainerFactory<String, String> containerFactory = new ConcurrentKafkaListenerContainerFactory();

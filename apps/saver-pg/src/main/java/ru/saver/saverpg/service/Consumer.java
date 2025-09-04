@@ -2,6 +2,7 @@ package ru.saver.saverpg.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,10 +16,11 @@ public class Consumer {
     }
 
     @KafkaListener(topics = "${topics.filtered}")
-    public void listen(String json) {
+    public void listen(String json, Acknowledgment acknowledgment) {
         log.info("Получил данные о продукте, сохраняю....");
         saver.saveJson(json);
         log.info("Сохранено!");
+        acknowledgment.acknowledge();
     }
 
 }

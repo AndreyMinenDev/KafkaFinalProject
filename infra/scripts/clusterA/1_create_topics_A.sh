@@ -9,6 +9,8 @@ echo "==> [A] Creating topics on ${BOOTSTRAP_A} using ${CONF_A}"
 
 kafka-topics --bootstrap-server "$BOOTSTRAP_A" --command-config "$CONF_A" --create --if-not-exists   --topic shop.products --replication-factor "$RF" --partitions "$PARTITIONS"
 
+kafka-topics --bootstrap-server "$BOOTSTRAP_A" --command-config "$CONF_A" --create --if-not-exists   --topic products.error --replication-factor "$RF" --partitions "$PARTITIONS"
+
 kafka-topics --bootstrap-server "$BOOTSTRAP_A" --command-config "$CONF_A" --create --if-not-exists   --topic shop.products.filtered --replication-factor "$RF" --partitions "$PARTITIONS"
 
 kafka-topics --bootstrap-server "$BOOTSTRAP_A" --command-config "$CONF_A" --create --if-not-exists   --topic client.requests --replication-factor "$RF" --partitions "$PARTITIONS"

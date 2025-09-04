@@ -9,6 +9,8 @@ spring:
       bootstrap-servers: ${BOOTSTRAP_SERVERS:localhost:9094,localhost:9095,localhost:9096}
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      retries: 5
     properties:
       security.protocol: SASL_SSL
       sasl.mechanism: PLAIN

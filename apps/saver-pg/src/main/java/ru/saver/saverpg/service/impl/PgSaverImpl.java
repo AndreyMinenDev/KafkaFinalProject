@@ -3,6 +3,8 @@ package ru.saver.saverpg.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import ru.saver.saverpg.models.ProductEntity;
 import ru.saver.saverpg.repository.ProductRepository;
@@ -17,9 +19,17 @@ public class PgSaverImpl implements PgSaver {
     private final ProductRepository repository;
     private final ObjectMapper mapper;
 
-    public PgSaverImpl(ProductRepository repository) {
+    private final KafkaTemplate<String, String> kafkaTemplate;
+
+    private final String errorTopic;
+
+    public PgSaverImpl(ProductRepository repository,
+                       KafkaTemplate<String, String> kafkaTemplate,
+                       @Value("${topics.error}") String errorTopic) {
         this.repository = repository;
         this.mapper = new ObjectMapper();
+        this.kafkaTemplate = kafkaTemplate;
+        this.errorTopic = errorTopic;
     }
 
     @Override
@@ -39,6 +49,7 @@ public class PgSaverImpl implements PgSaver {
             }
             repository.save(product);
         } catch (Exception ex) {
+            kafkaTemplate.send(errorTopic, json);
             log.error("Save product:", ex);
         }
     }
